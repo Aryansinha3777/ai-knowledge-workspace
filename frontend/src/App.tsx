@@ -1,9 +1,25 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Workspaces from './pages/Workspaces';
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <h1 className="text-2xl font-semibold text-slate-800">AI Knowledge Workspace</h1>
-    </div>
-  )
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/workspaces"
+        element={
+          <ProtectedRoute>
+            <Workspaces />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/" element={<Navigate to="/workspaces" replace />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
