@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser } from '../services/auth.service';
+import { registerUser, loginUser, getCurrentUser } from '../services/auth.service';
 
 export async function register(req: Request, res: Response) {
   try {
@@ -47,6 +47,22 @@ export async function login(req: Request, res: Response) {
     return res.status(401).json({
       success: false,
       message: error.message || 'Something went wrong',
+    });
+  }
+}
+
+export async function me(req: Request, res: Response) {
+  try {
+    const user = await getCurrentUser(req.userId as string);
+
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error: any) {
+    return res.status(404).json({
+      success: false,
+      message: error.message || 'User not found',
     });
   }
 }
