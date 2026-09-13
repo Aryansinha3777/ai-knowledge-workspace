@@ -51,6 +51,18 @@ model Document {
   status      ProcessingStatus @default(PENDING)
   workspaceId String
   workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  chunks      DocumentChunk[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
+
+
+model DocumentChunk {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  chunkIndex Int
+  content    String
+  pageNumber Int?
+  createdAt  DateTime @default(now())
 }

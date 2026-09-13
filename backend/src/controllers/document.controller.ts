@@ -5,10 +5,10 @@ import {
   getDocumentById,
   deleteDocument,
 } from '../services/document.service';
+import { processDocument } from '../services/processing.service';
 
 export async function upload(req: Request, res: Response) {
   try {
-
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
@@ -18,6 +18,10 @@ export async function upload(req: Request, res: Response) {
       req.params.workspaceId as string,
       req.file
     );
+
+    processDocument(document.id).catch((err) => {
+      console.error(`Processing failed for document ${document.id}:`, err.message);
+    });
 
     return res.status(201).json({ success: true, data: document });
   } catch (error: any) {
