@@ -2,6 +2,7 @@ import { useEffect, useState, FormEvent } from 'react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface Workspace {
   id: string;
@@ -95,7 +96,9 @@ export default function Workspaces() {
           <ul className="space-y-2">
             {workspaces.map((ws) => (
               <li key={ws.id} className="bg-white p-4 rounded shadow-sm flex justify-between items-center">
-                <span className="text-slate-800">{ws.name}</span>
+                <Link to={`/workspaces/${ws.id}`} className="text-slate-800 hover:underline">
+                   {ws.name}
+                </Link>
                 <button
                   onClick={() => handleDelete(ws.id)}
                   className="text-red-500 text-sm hover:underline"
