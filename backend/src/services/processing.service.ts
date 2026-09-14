@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma';
 import { extractText } from '../utils/extraction';
 import { cleanText, chunkText } from '../utils/chunking';
+import { generateEmbedding } from './embedding.service';
 
 export async function processDocument(documentId: string) {
   const document = await prisma.document.findUnique({ where: { id: documentId } });
@@ -23,13 +24,15 @@ export async function processDocument(documentId: string) {
       throw new Error('No extractable text found in document');
     }
 
-    await prisma.documentChunk.createMany({
-      data: chunks.map((content, index) => ({
-        documentId,
-        chunkIndex: index,
-        content,
-      })),
-    });
+    for (let i = 0; i < chunks.length; i++) {
+  const content = chunks[i];
+  const embedding = await generateEmbedding(content);
+
+  await prisma.$executeRaw`
+    INSERT INTO "DocumentChunk" (id, "documentId", "chunkIndex", content, embedding, "createdAt")
+    VALUES (gen_random_uuid(), ${documentId}, ${i}, ${content}, ${embedding}::vector, now())
+  `;
+}
 
     await prisma.document.update({
       where: { id: documentId },
