@@ -9,3 +9,5 @@ A full-stack RAG-based knowledge management platform. Users upload documents, wh
 - Backend: Node.js, Express, TypeScript
 - Database: PostgreSQL + pgvector
 - ORM: Prisma
+
+**Database:** PostgreSQL (hosted on [Neon](https://neon.tech)) with the pgvector extension enabled for vector similarity search.
