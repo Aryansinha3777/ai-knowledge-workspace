@@ -36,9 +36,23 @@ export default function WorkspaceDetail() {
     }
   }
 
-  useEffect(() => {
+useEffect(() => {
+  fetchDocuments();
+}, [workspaceId]);
+
+useEffect(() => {
+  const hasPendingDocs = documents.some(
+    (doc) => doc.status === 'PENDING' || doc.status === 'PROCESSING'
+  );
+
+  if (!hasPendingDocs) return;
+
+  const interval = setInterval(() => {
     fetchDocuments();
-  }, [workspaceId]);
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [documents]);
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
