@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Workspaces from './pages/Workspaces';
 import WorkspaceDetail from './pages/WorkspaceDetail';
 import ProtectedRoute from './components/ProtectedRoute';
+import Search from './pages/Search';
 
 function App() {
   return (
@@ -25,6 +26,14 @@ function App() {
             <WorkspaceDetail />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/workspaces/:id/search"
+        element={
+       <ProtectedRoute>
+         <Search />
+       </ProtectedRoute>
+       }
       />
       <Route path="/" element={<Navigate to="/workspaces" replace />} />
     </Routes>

@@ -98,6 +98,13 @@ useEffect(() => {
           ← Back to workspaces
         </Link>
 
+        <Link
+          to={`/workspaces/${workspaceId}/search`}
+          className="text-sm text-slate-800 underline ml-4"
+        >
+          Search this workspace →
+        </Link>
+
         <h1 className="text-2xl font-semibold text-slate-800 mt-2 mb-6">Documents</h1>
 
         <label className="block mb-6">
