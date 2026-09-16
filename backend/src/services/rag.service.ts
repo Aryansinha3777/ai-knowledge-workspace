@@ -1,0 +1,71 @@
+import { prisma } from '../config/prisma';
+import { semanticSearch } from './search.service';
+import { generateAnswer } from './llm.service';
+
+interface Source {
+  documentId: string;
+  filename: string;
+  chunkIndex: number;
+  similarity: number;
+}
+
+export async function askQuestion(
+  userId: string,
+  conversationId: string,
+  question: string,
+  scope: { workspaceId?: string; documentId?: string }
+) {
+  const chunks = await semanticSearch(userId, question, {
+    workspaceId: scope.workspaceId,
+    documentId: scope.documentId,
+    topK: 5,
+  });
+
+  await prisma.message.create({
+    data: {
+      conversationId,
+      role: 'USER',
+      content: question,
+    },
+  });
+
+  if (chunks.length === 0) {
+    const noContextAnswer =
+      "I couldn't find any relevant information in your documents to answer this question.";
+
+    await prisma.message.create({
+      data: {
+        conversationId,
+        role: 'ASSISTANT',
+        content: noContextAnswer,
+        sources: [],
+      },
+    });
+
+    return { answer: noContextAnswer, sources: [] };
+  }
+
+  const context = chunks
+    .map((c, i) => `[Source ${i + 1}: ${c.filename}]\n${c.content}`)
+    .join('\n\n');
+
+  const answer = await generateAnswer(context, question);
+
+  const sources: Source[] = chunks.map((c) => ({
+    documentId: c.documentId,
+    filename: c.filename,
+    chunkIndex: c.chunkIndex,
+    similarity: c.similarity,
+  }));
+
+  await prisma.message.create({
+    data: {
+      conversationId,
+      role: 'ASSISTANT',
+      content: answer,
+      sources: sources as any,
+    },
+  });
+
+  return { answer, sources };
+}
