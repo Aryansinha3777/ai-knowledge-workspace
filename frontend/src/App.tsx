@@ -5,6 +5,7 @@ import Workspaces from './pages/Workspaces';
 import WorkspaceDetail from './pages/WorkspaceDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import Search from './pages/Search';
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
        </ProtectedRoute>
        }
       />
+      <Route
+       path="/workspaces/:id/chat"
+       element={
+      <ProtectedRoute>
+        <Chat />
+      </ProtectedRoute>
+      }
+     />
       <Route path="/" element={<Navigate to="/workspaces" replace />} />
     </Routes>
   );

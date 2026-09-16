@@ -105,6 +105,13 @@ useEffect(() => {
           Search this workspace →
         </Link>
 
+        <Link
+           to={`/workspaces/${workspaceId}/chat`}
+           className="text-sm text-slate-800 underline ml-4"
+        >
+         Ask AI →
+        </Link>
+
         <h1 className="text-2xl font-semibold text-slate-800 mt-2 mb-6">Documents</h1>
 
         <label className="block mb-6">
