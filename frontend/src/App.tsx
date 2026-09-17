@@ -6,6 +6,7 @@ import WorkspaceDetail from './pages/WorkspaceDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import Search from './pages/Search';
 import Chat from './pages/Chat';
+import ConversationList from './pages/ConversationList';
 
 function App() {
   return (
@@ -37,13 +38,21 @@ function App() {
        }
       />
       <Route
-       path="/workspaces/:id/chat"
-       element={
-      <ProtectedRoute>
-        <Chat />
-      </ProtectedRoute>
-      }
-     />
+        path="/workspaces/:id/chat"
+        element={
+          <ProtectedRoute>
+            <ConversationList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspaces/:id/chat/:conversationId"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/" element={<Navigate to="/workspaces" replace />} />
     </Routes>
   );

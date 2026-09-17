@@ -17,24 +17,28 @@ interface Message {
 }
 
 export default function Chat() {
-  const { id: workspaceId } = useParams();
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const { id: workspaceId, conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [question, setQuestion] = useState('');
-  const [asking, setAsking] = useState(false);
-  const [error, setError] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
+const [loading, setLoading] = useState(true);
+const [question, setQuestion] = useState('');
+const [asking, setAsking] = useState(false);
+const [error, setError] = useState('');
+const bottomRef = useRef<HTMLDivElement>(null);
 
-  async function initConversation() {
-    const res = await api.post(`/workspaces/${workspaceId}/conversations`, {
-      title: 'New Conversation',
-    });
-    setConversationId(res.data.data.id);
+async function loadConversation() {
+  try {
+    const res = await api.get(`/conversations/${conversationId}`);
+    setMessages(res.data.data.messages);
+  } catch (err) {
+    setError('Failed to load conversation');
+  } finally {
+    setLoading(false);
   }
+}
 
-  useEffect(() => {
-    initConversation();
-  }, [workspaceId]);
+useEffect(() => {
+  loadConversation();
+}, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -81,18 +85,20 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <div className="max-w-2xl mx-auto w-full p-8 flex-1 flex flex-col">
-        <Link to={`/workspaces/${workspaceId}`} className="text-sm text-slate-500 hover:underline">
-          ← Back to workspace
+        <Link to={`/workspaces/${workspaceId}/chat`} className="text-sm text-slate-500 hover:underline">
+          ← Back to conversations
         </Link>
 
         <h1 className="text-2xl font-semibold text-slate-800 mt-2 mb-6">Ask AI</h1>
 
         <div className="flex-1 space-y-4 mb-4 overflow-y-auto">
-          {messages.length === 0 && (
-            <p className="text-slate-400 text-sm">
-              Ask a question about the documents in this workspace.
-            </p>
-          )}
+          {loading ? (
+          <p className="text-slate-400 text-sm">Loading conversation...</p>
+           ) : messages.length === 0 ? (
+          <p className="text-slate-400 text-sm">
+             Ask a question about the documents in this workspace.
+          </p>
+         ) : null}
 
           {messages.map((msg) => (
             <div
