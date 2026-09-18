@@ -31,3 +31,30 @@ ${context}`;
 
   return answer;
 }
+
+export async function generateSummary(documentText: string): Promise<string> {
+  const systemPrompt = `You are a helpful assistant that writes clear, concise summaries of documents.
+
+Rules:
+- Summarize the key points and main ideas of the document below.
+- Keep the summary well-organized and easy to read (use short paragraphs or bullet points where helpful).
+- Do not add information that isn't in the document.
+- Keep it concise — aim for a few short paragraphs, not a page-by-page recap.
+
+Document:
+${documentText}`;
+
+  const response = await groq.chat.completions.create({
+    model: 'openai/gpt-oss-120b',
+    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: 'Summarize this document.' }],
+    temperature: 0.3,
+  });
+
+  const summary = response.choices?.[0]?.message?.content;
+
+  if (!summary) {
+    throw new Error('Failed to generate summary');
+  }
+
+  return summary;
+}
