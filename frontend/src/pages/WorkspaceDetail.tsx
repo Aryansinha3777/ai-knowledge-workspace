@@ -24,6 +24,8 @@ export default function WorkspaceDetail() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [summaries, setSummaries] = useState<Record<string, string>>({});
+  const [summarizing, setSummarizing] = useState<string | null>(null);
 
   async function fetchDocuments() {
     try {
@@ -86,6 +88,19 @@ useEffect(() => {
     }
   }
 
+  async function handleSummarize(docId: string) {
+  setSummarizing(docId);
+  setError('');
+  try {
+    const res = await api.post(`/documents/${docId}/summarize`);
+    setSummaries((prev) => ({ ...prev, [docId]: res.data.data.summary }));
+  } catch (err: any) {
+    setError(err.response?.data?.message || 'Failed to summarize');
+  } finally {
+    setSummarizing(null);
+  }
+}
+
   function formatFileSize(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
     return `${(bytes / 1024).toFixed(1)} KB`;
@@ -136,24 +151,41 @@ useEffect(() => {
         ) : (
           <ul className="space-y-2">
             {documents.map((doc) => (
-              <li key={doc.id} className="bg-white p-4 rounded shadow-sm flex justify-between items-center">
-                <div>
-                  <p className="text-slate-800">{doc.filename}</p>
-                  <p className="text-xs text-slate-400">
-                    {doc.fileType.toUpperCase()} · {formatFileSize(doc.fileSize)}
-                  </p>
+              <li key={doc.id} className="bg-white p-4 rounded shadow-sm">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-slate-800">{doc.filename}</p>
+                    <p className="text-xs text-slate-400">
+                      {doc.fileType.toUpperCase()} · {formatFileSize(doc.fileSize)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xs px-2 py-1 rounded ${STATUS_STYLES[doc.status]}`}>
+                      {doc.status}
+                    </span>
+                    {doc.status === 'COMPLETED' && (
+                      <button
+                        onClick={() => handleSummarize(doc.id)}
+                        disabled={summarizing === doc.id}
+                        className="text-slate-600 text-sm hover:underline disabled:opacity-50"
+                      >
+                        {summarizing === doc.id ? 'Summarizing...' : 'Summarize'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(doc.id)}
+                      className="text-red-500 text-sm hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-1 rounded ${STATUS_STYLES[doc.status]}`}>
-                    {doc.status}
-                  </span>
-                  <button
-                    onClick={() => handleDelete(doc.id)}
-                    className="text-red-500 text-sm hover:underline"
-                  >
-                    Delete
-                  </button>
-                </div>
+
+                {summaries[doc.id] && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 text-sm text-slate-600 whitespace-pre-line">
+                    {summaries[doc.id]}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
