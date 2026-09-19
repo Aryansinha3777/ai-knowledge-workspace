@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../api/client';
+import Layout from '../components/Layout';
 
 interface Source {
   documentId: string;
@@ -19,26 +20,26 @@ interface Message {
 export default function Chat() {
   const { id: workspaceId, conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
-const [loading, setLoading] = useState(true);
-const [question, setQuestion] = useState('');
-const [asking, setAsking] = useState(false);
-const [error, setError] = useState('');
-const bottomRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [question, setQuestion] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [error, setError] = useState('');
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-async function loadConversation() {
-  try {
-    const res = await api.get(`/conversations/${conversationId}`);
-    setMessages(res.data.data.messages);
-  } catch (err) {
-    setError('Failed to load conversation');
-  } finally {
-    setLoading(false);
+  async function loadConversation() {
+    try {
+      const res = await api.get(`/conversations/${conversationId}`);
+      setMessages(res.data.data.messages);
+    } catch {
+      setError('Failed to load conversation');
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
-useEffect(() => {
-  loadConversation();
-}, [conversationId]);
+  useEffect(() => {
+    loadConversation();
+  }, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,7 +47,7 @@ useEffect(() => {
 
   async function handleAsk(e: FormEvent) {
     e.preventDefault();
-    if (!question.trim() || !conversationId) return;
+    if (!question.trim()) return;
 
     const userMessage: Message = {
       id: `temp-${Date.now()}`,
@@ -83,71 +84,87 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="max-w-2xl mx-auto w-full p-8 flex-1 flex flex-col">
-        <Link to={`/workspaces/${workspaceId}/chat`} className="text-sm text-slate-500 hover:underline">
-          ← Back to conversations
-        </Link>
+    <Layout>
+      <div className="h-screen flex flex-col">
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-2xl mx-auto px-8 py-8">
+            {loading ? (
+              <p className="text-sm text-[#71717A]">Loading conversation...</p>
+            ) : messages.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-sm text-[#71717A]">
+                  Ask a question about the documents in this workspace.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {messages.map((msg) => (
+                  <div key={msg.id}>
+                    {msg.role === 'USER' ? (
+                      <div className="flex justify-end">
+                        <div className="bg-[#4F46E5] text-white text-sm rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]">
+                          {msg.content}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-w-[85%]">
+                        <p className="text-sm text-[#27272A] leading-relaxed whitespace-pre-line">
+                          {msg.content}
+                        </p>
+                        {msg.sources && msg.sources.length > 0 && (
+                          <div className="mt-2.5 flex flex-wrap gap-1.5">
+                            {msg.sources.map((s, i) => (
+                              <span
+                                key={i}
+                                className="text-xs text-[#71717A] bg-[#F7F7F8] border border-[#E4E4E7] rounded-full px-2.5 py-1"
+                              >
+                                {s.filename} · {(s.similarity * 100).toFixed(0)}%
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
 
-        <h1 className="text-2xl font-semibold text-slate-800 mt-2 mb-6">Ask AI</h1>
+                {asking && (
+                  <div className="flex items-center gap-1.5 text-[#71717A]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce"></span>
+                  </div>
+                )}
 
-        <div className="flex-1 space-y-4 mb-4 overflow-y-auto">
-          {loading ? (
-          <p className="text-slate-400 text-sm">Loading conversation...</p>
-           ) : messages.length === 0 ? (
-          <p className="text-slate-400 text-sm">
-             Ask a question about the documents in this workspace.
-          </p>
-         ) : null}
-
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`p-3 rounded-lg max-w-[85%] ${
-                msg.role === 'USER'
-                  ? 'bg-slate-800 text-white ml-auto'
-                  : 'bg-white shadow-sm text-slate-800'
-              }`}
-            >
-              <p className="text-sm">{msg.content}</p>
-
-              {msg.sources && msg.sources.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
-                  {msg.sources.map((s, i) => (
-                    <p key={i} className="text-xs text-slate-500">
-                      📄 {s.filename} · similarity {s.similarity.toFixed(2)}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {asking && <p className="text-slate-400 text-sm">Thinking...</p>}
-
-          <div ref={bottomRef} />
+                <div ref={bottomRef} />
+              </div>
+            )}
+          </div>
         </div>
 
-        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-
-        <form onSubmit={handleAsk} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Ask a question..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            disabled={asking}
-            className="flex-1 border border-slate-300 rounded px-3 py-2"
-          />
-          <button
-            type="submit"
-            disabled={asking}
-            className="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700 disabled:opacity-50"
-          >
-            Ask
-          </button>
-        </form>
+        <div className="border-t border-[#E4E4E7] px-8 py-4">
+          <div className="max-w-2xl mx-auto">
+            {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+            <form onSubmit={handleAsk} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ask a question..."
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                disabled={asking}
+                className="flex-1 border border-[#E4E4E7] rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 focus:border-[#4F46E5]"
+              />
+              <button
+                type="submit"
+                disabled={asking}
+                className="bg-[#4F46E5] text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-[#4338CA] disabled:opacity-50 transition-colors"
+              >
+                Ask
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

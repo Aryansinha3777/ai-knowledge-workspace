@@ -1,8 +1,8 @@
 import { useEffect, useState, FormEvent } from 'react';
-import api from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import api from '../api/client';
+import Layout from '../components/Layout';
+import { useWorkspaceContext } from '../context/WorkspaceContext';
 
 interface Workspace {
   id: string;
@@ -15,14 +15,13 @@ export default function Workspaces() {
   const [newName, setNewName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { refreshWorkspaces } = useWorkspaceContext();
 
   async function fetchWorkspaces() {
     try {
       const res = await api.get('/workspaces');
       setWorkspaces(res.data.data);
-    } catch (err: any) {
+    } catch {
       setError('Failed to load workspaces');
     } finally {
       setLoading(false);
@@ -41,7 +40,8 @@ export default function Workspaces() {
       await api.post('/workspaces', { name: newName });
       setNewName('');
       fetchWorkspaces();
-    } catch (err: any) {
+      refreshWorkspaces();
+    } catch {
       setError('Failed to create workspace');
     }
   }
@@ -50,38 +50,32 @@ export default function Workspaces() {
     try {
       await api.delete(`/workspaces/${id}`);
       fetchWorkspaces();
-    } catch (err: any) {
+      refreshWorkspaces();
+    } catch {
       setError('Failed to delete workspace');
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold text-slate-800">
-            Welcome{user?.name ? `, ${user.name}` : ''}
-          </h1>
-            <button
-            onClick={() => {
-                logout();
-                navigate('/login');
-            }}
-            className="text-sm text-slate-500 underline"
-            >
-            Log out
-            </button>
-        </div>
+    <Layout>
+      <div className="max-w-2xl mx-auto px-8 py-12">
+        <h1 className="text-2xl font-semibold text-[#27272A] mb-1">Your workspaces</h1>
+        <p className="text-sm text-[#71717A] mb-8">
+          Organize your documents into focused knowledge spaces.
+        </p>
 
-        <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+        <form onSubmit={handleCreate} className="flex gap-2 mb-8">
           <input
             type="text"
             placeholder="New workspace name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="flex-1 border border-slate-300 rounded px-3 py-2"
+            className="flex-1 border border-[#E4E4E7] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 focus:border-[#4F46E5]"
           />
-          <button type="submit" className="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700">
+          <button
+            type="submit"
+            className="bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+          >
             Create
           </button>
         </form>
@@ -89,19 +83,24 @@ export default function Workspaces() {
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
         {loading ? (
-          <p className="text-slate-500">Loading workspaces...</p>
+          <p className="text-sm text-[#71717A]">Loading...</p>
         ) : workspaces.length === 0 ? (
-          <p className="text-slate-500">No workspaces yet. Create one above.</p>
+          <div className="text-center py-12 border border-dashed border-[#E4E4E7] rounded-lg">
+            <p className="text-sm text-[#71717A]">No workspaces yet — create one above to get started.</p>
+          </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {workspaces.map((ws) => (
-              <li key={ws.id} className="bg-white p-4 rounded shadow-sm flex justify-between items-center">
-                <Link to={`/workspaces/${ws.id}`} className="text-slate-800 hover:underline">
-                   {ws.name}
+              <li
+                key={ws.id}
+                className="group flex justify-between items-center px-4 py-3 rounded-lg hover:bg-[#F7F7F8] transition-colors"
+              >
+                <Link to={`/workspaces/${ws.id}`} className="text-sm text-[#27272A] font-medium">
+                  {ws.name}
                 </Link>
                 <button
                   onClick={() => handleDelete(ws.id)}
-                  className="text-red-500 text-sm hover:underline"
+                  className="text-xs text-[#71717A] hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Delete
                 </button>
@@ -110,6 +109,6 @@ export default function Workspaces() {
           </ul>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
