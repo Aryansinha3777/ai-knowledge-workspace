@@ -4,7 +4,7 @@ import {
   getConversations,
   getConversationWithMessages,
 } from '../services/conversation.service';
-import { askQuestion } from '../services/rag.service';
+import { askQuestion , askQuestionStream } from '../services/rag.service';
 
 export async function createConv(req: Request, res: Response) {
   try {
@@ -61,5 +61,36 @@ export async function ask(req: Request, res: Response) {
     return res.status(200).json({ success: true, data: result });
   } catch (error: any) {
     return res.status(400).json({ success: false, message: error.message });
+  }
+}
+
+export async function askStream(req: Request, res: Response) {
+  try {
+    const { question, workspaceId, documentId } = req.body;
+
+    if (!question) {
+      return res.status(400).json({ success: false, message: 'Question is required' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    const generator = askQuestionStream(
+      req.userId as string,
+      req.params.id as string,
+      question,
+      { workspaceId, documentId }
+    );
+
+    for await (const event of generator) {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+    }
+
+    res.end();
+  } catch (error: any) {
+    res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`);
+    res.end();
   }
 }

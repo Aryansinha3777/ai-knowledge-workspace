@@ -46,42 +46,83 @@ export default function Chat() {
   }, [messages]);
 
   async function handleAsk(e: FormEvent) {
-    e.preventDefault();
-    if (!question.trim()) return;
+  e.preventDefault();
+  if (!question.trim()) return;
 
-    const userMessage: Message = {
-      id: `temp-${Date.now()}`,
-      role: 'USER',
-      content: question,
-      sources: null,
-    };
+  const userMessage: Message = {
+    id: `temp-${Date.now()}`,
+    role: 'USER',
+    content: question,
+    sources: null,
+  };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setAsking(true);
-    setError('');
-    const askedQuestion = question;
-    setQuestion('');
+  const assistantId = `temp-${Date.now()}-a`;
+  const assistantMessage: Message = {
+    id: assistantId,
+    role: 'ASSISTANT',
+    content: '',
+    sources: null,
+  };
 
-    try {
-      const res = await api.post(`/conversations/${conversationId}/messages`, {
-        question: askedQuestion,
-        workspaceId,
-      });
+  setMessages((prev) => [...prev, userMessage, assistantMessage]);
+  setAsking(true);
+  setError('');
+  const askedQuestion = question;
+  setQuestion('');
 
-      const assistantMessage: Message = {
-        id: `temp-${Date.now()}-a`,
-        role: 'ASSISTANT',
-        content: res.data.data.answer,
-        sources: res.data.data.sources,
-      };
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(
+      `http://localhost:5000/api/conversations/${conversationId}/messages/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ question: askedQuestion, workspaceId }),
+      }
+    );
 
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to get answer');
-    } finally {
-      setAsking(false);
+    if (!response.body) throw new Error('No response body');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const event = JSON.parse(line.slice(6));
+
+        if (event.type === 'sources') {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, sources: event.sources } : m))
+          );
+        } else if (event.type === 'token') {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + event.token } : m
+            )
+          );
+        } else if (event.type === 'error') {
+          setError(event.message);
+        }
+      }
     }
+  } catch (err: any) {
+    setError('Failed to get answer');
+  } finally {
+    setAsking(false);
   }
+}
 
   return (
     <Layout>
