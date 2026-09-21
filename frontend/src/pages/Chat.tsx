@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import ReactMarkdown from 'react-markdown';
 
 interface Source {
   documentId: string;
@@ -156,9 +157,9 @@ export default function Chat() {
                       </div>
                     ) : (
                       <div className="max-w-[85%]">
-                        <p className="text-sm text-[#27272A] leading-relaxed whitespace-pre-line">
-                          {msg.content}
-                        </p>
+                        <div className="text-sm text-[#27272A] leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-headings:my-2 prose-strong:font-semibold">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
                         {msg.sources && msg.sources.length > 0 && (
                           <div className="mt-2.5 flex flex-wrap gap-1.5">
                             {msg.sources.map((s, i) => (
