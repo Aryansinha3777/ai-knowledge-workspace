@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
 import ReactMarkdown from 'react-markdown';
+import { Copy, Check } from 'lucide-react';
 
 interface Source {
   documentId: string;
@@ -27,6 +28,7 @@ export default function Chat() {
   const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<string>('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   async function loadConversation() {
     try {
@@ -38,6 +40,16 @@ export default function Chat() {
       setLoading(false);
     }
   }
+
+  async function handleCopy(id: string, content: string) {
+  try {
+    await navigator.clipboard.writeText(content);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  } catch {
+    setError('Failed to copy');
+  }
+}
 
   useEffect(() => {
     loadConversation();
@@ -156,7 +168,7 @@ export default function Chat() {
                         </div>
                       </div>
                     ) : (
-                      <div className="max-w-[85%]">
+                      <div className="max-w-[85%] group">
                         <div className="text-sm text-[#27272A] leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-headings:my-2 prose-strong:font-semibold">
                           <ReactMarkdown>{msg.content}</ReactMarkdown>
                         </div>
@@ -171,6 +183,22 @@ export default function Chat() {
                               </span>
                             ))}
                           </div>
+                        )}
+                        {msg.content && !asking && (
+                          <button
+                            onClick={() => handleCopy(msg.id, msg.content)}
+                            className="mt-2 flex items-center gap-1 text-xs text-[#71717A] hover:text-[#27272A] opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            {copiedId === msg.id ? (
+                              <>
+                                <Check size={12} /> Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={12} /> Copy
+                              </>
+                            )}
+                          </button>
                         )}
                       </div>
                     )}
