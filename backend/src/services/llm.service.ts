@@ -88,3 +88,30 @@ ${documentText}`;
 
   return summary;
 }
+
+export async function generateTitle(question: string): Promise<string> {
+  const response = await groq.chat.completions.create({
+    model: 'openai/gpt-oss-120b',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'Generate a short, specific title (3-6 words) that captures the topic of the user\'s question below. The title should describe WHAT the question is about, not describe that it is a "conversation" or "new chat". Respond with ONLY the title text, no quotes, no punctuation at the end, no prefixes like "Title:".',
+      },
+      { role: 'user', content: question },
+    ],
+    temperature: 0.3,
+    max_tokens: 50,
+    reasoning_effort: 'low',
+  } as any);
+
+  const rawTitle = response.choices?.[0]?.message?.content;
+
+  const title = rawTitle?.trim();
+
+  if (!title || title.length === 0) {
+    return 'New Conversation';
+  }
+
+  return title;
+}

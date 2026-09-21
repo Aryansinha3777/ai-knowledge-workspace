@@ -1,7 +1,6 @@
 import { prisma } from '../config/prisma';
 import { semanticSearch } from './search.service';
-import { generateAnswer , streamAnswer } from './llm.service';
-
+import { generateAnswer, streamAnswer, generateTitle } from './llm.service';
 
 interface Source {
   documentId: string;
@@ -71,7 +70,6 @@ export async function askQuestion(
   return { answer, sources };
 }
 
-
 export async function* askQuestionStream(
   userId: string,
   conversationId: string,
@@ -89,6 +87,16 @@ export async function* askQuestionStream(
   await prisma.message.create({
     data: { conversationId, role: 'USER', content: question },
   });
+
+  const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+  if (conversation && (!conversation.title || conversation.title === 'New Conversation')) {
+    generateTitle(question)
+      .then((title) => {
+        console.log('Generated title:', title);
+        return prisma.conversation.update({ where: { id: conversationId }, data: { title } });
+      })
+      .catch((err) => console.error('Title generation failed:', err.message));
+  }
 
   if (chunks.length === 0) {
     const noContextAnswer =
