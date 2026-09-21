@@ -78,6 +78,8 @@ export async function* askQuestionStream(
   question: string,
   scope: { workspaceId?: string; documentId?: string }
 ) {
+  yield { type: 'status' as const, stage: 'searching' };
+
   const chunks = await semanticSearch(userId, question, {
     workspaceId: scope.workspaceId,
     documentId: scope.documentId,
@@ -109,7 +111,9 @@ export async function* askQuestionStream(
     similarity: c.similarity,
   }));
 
+  yield { type: 'status' as const, stage: 'found', count: sources.length };
   yield { type: 'sources' as const, sources };
+  yield { type: 'status' as const, stage: 'generating' };
 
   const context = chunks
     .map((c, i) => `[Source ${i + 1}: ${c.filename}]\n${c.content}`)
@@ -123,12 +127,7 @@ export async function* askQuestionStream(
   }
 
   await prisma.message.create({
-    data: {
-      conversationId,
-      role: 'ASSISTANT',
-      content: fullAnswer,
-      sources: sources as any,
-    },
+    data: { conversationId, role: 'ASSISTANT', content: fullAnswer, sources: sources as any },
   });
 
   yield { type: 'done' as const };

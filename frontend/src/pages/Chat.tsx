@@ -25,6 +25,7 @@ export default function Chat() {
   const [asking, setAsking] = useState(false);
   const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<string>('');
 
   async function loadConversation() {
     try {
@@ -67,6 +68,7 @@ export default function Chat() {
   setMessages((prev) => [...prev, userMessage, assistantMessage]);
   setAsking(true);
   setError('');
+  setStatus('');
   const askedQuestion = question;
   setQuestion('');
 
@@ -99,23 +101,28 @@ export default function Chat() {
       buffer = lines.pop() || '';
 
       for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const event = JSON.parse(line.slice(6));
+      if (!line.startsWith('data: ')) continue;
+      const event = JSON.parse(line.slice(6));
 
-        if (event.type === 'sources') {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, sources: event.sources } : m))
-          );
-        } else if (event.type === 'token') {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, content: m.content + event.token } : m
-            )
-          );
-        } else if (event.type === 'error') {
-          setError(event.message);
-        }
+      if (event.type === 'status') {
+        if (event.stage === 'searching') setStatus('Searching your documents...');
+        else if (event.stage === 'found') setStatus(`Found ${event.count} relevant source${event.count === 1 ? '' : 's'}...`);
+        else if (event.stage === 'generating') setStatus('Generating answer...');
+      } else if (event.type === 'sources') {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === assistantId ? { ...m, sources: event.sources } : m))
+        );
+      } else if (event.type === 'token') {
+        setStatus('');
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId ? { ...m, content: m.content + event.token } : m
+          )
+        );
+      } else if (event.type === 'error') {
+        setError(event.message);
       }
+    }
     }
   } catch (err: any) {
     setError('Failed to get answer');
@@ -169,11 +176,10 @@ export default function Chat() {
                   </div>
                 ))}
 
-                {asking && (
-                  <div className="flex items-center gap-1.5 text-[#71717A]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce [animation-delay:-0.3s]"></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce [animation-delay:-0.15s]"></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#71717A] animate-bounce"></span>
+                {asking && status && (
+                  <div className="flex items-center gap-2 text-sm text-[#71717A]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4F46E5] animate-pulse"></span>
+                    {status}
                   </div>
                 )}
 
