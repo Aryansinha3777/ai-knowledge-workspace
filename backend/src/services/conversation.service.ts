@@ -41,3 +41,8 @@ export async function getConversationWithMessages(userId: string, conversationId
 
   return conversation;
 }
+
+export async function deleteConversation(userId: string, conversationId: string) {
+  const conversation = await getConversationWithMessages(userId, conversationId);
+  await prisma.conversation.delete({ where: { id: conversation.id } });
+}

@@ -3,6 +3,7 @@ import {
   createConversation,
   getConversations,
   getConversationWithMessages,
+  deleteConversation
 } from '../services/conversation.service';
 import { askQuestion , askQuestionStream } from '../services/rag.service';
 
@@ -92,5 +93,15 @@ export async function askStream(req: Request, res: Response) {
   } catch (error: any) {
     res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`);
     res.end();
+  }
+}
+
+export async function removeConv(req: Request, res: Response) {
+  try {
+    await deleteConversation(req.userId as string, req.params.id as string);
+    return res.status(200).json({ success: true, message: 'Conversation deleted' });
+  } catch (error: any) {
+    const status = error.message === 'Conversation not found' ? 404 : 403;
+    return res.status(status).json({ success: false, message: error.message });
   }
 }
