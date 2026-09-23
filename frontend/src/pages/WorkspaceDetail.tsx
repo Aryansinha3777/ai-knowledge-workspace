@@ -1,7 +1,8 @@
 import { useEffect, useState, ChangeEvent } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link , useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+
 
 interface Document {
   id: string;
@@ -27,6 +28,7 @@ export default function WorkspaceDetail() {
   const [error, setError] = useState('');
   const [summaries, setSummaries] = useState<Record<string, string>>({});
   const [summarizing, setSummarizing] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   async function fetchDocuments() {
     try {
@@ -38,6 +40,17 @@ export default function WorkspaceDetail() {
       setLoading(false);
     }
   }
+
+  async function handleAskAI() {
+  try {
+    const res = await api.post(`/workspaces/${workspaceId}/conversations`, {
+      title: 'New Conversation',
+    });
+    navigate(`/workspaces/${workspaceId}/chat/${res.data.data.id}`);
+  } catch {
+    setError('Failed to start conversation');
+  }
+}
 
   useEffect(() => {
     fetchDocuments();
@@ -110,9 +123,9 @@ export default function WorkspaceDetail() {
             <Link to={`/workspaces/${workspaceId}/search`} className="text-sm text-[#4F46E5] font-medium">
               Search
             </Link>
-            <Link to={`/workspaces/${workspaceId}/chat`} className="text-sm text-[#4F46E5] font-medium">
+            <button onClick={handleAskAI} className="text-sm text-[#4F46E5] font-medium">
               Ask AI
-            </Link>
+            </button>
           </div>
         </div>
         <p className="text-sm text-[#71717A] mb-8">Upload PDF, TXT, or Markdown files.</p>
