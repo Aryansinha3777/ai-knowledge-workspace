@@ -119,6 +119,7 @@ export default function Chat() {
 
       if (event.type === 'status') {
         if (event.stage === 'searching') setStatus('Searching your documents...');
+        else if (event.stage === 'reranking') setStatus('Ranking most relevant results...');
         else if (event.stage === 'found') setStatus(`Found ${event.count} relevant source${event.count === 1 ? '' : 's'}...`);
         else if (event.stage === 'generating') setStatus('Generating answer...');
       } else if (event.type === 'sources') {

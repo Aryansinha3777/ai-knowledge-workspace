@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma';
 import { semanticSearch } from './search.service';
-import { generateAnswer, streamAnswer, generateTitle } from './llm.service';
+import { generateAnswer, streamAnswer, generateTitle, rewriteQuery, rerankChunks } from './llm.service';
 
 interface Source {
   documentId: string;
@@ -76,13 +76,31 @@ export async function* askQuestionStream(
   question: string,
   scope: { workspaceId?: string; documentId?: string }
 ) {
+  const previousMessages = await prisma.message.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: 'asc' },
+    select: { role: true, content: true },
+  });
+
+  const searchQuery = await rewriteQuery(previousMessages, question);
+
   yield { type: 'status' as const, stage: 'searching' };
 
-  const chunks = await semanticSearch(userId, question, {
+  const candidates = await semanticSearch(userId, searchQuery, {
     workspaceId: scope.workspaceId,
     documentId: scope.documentId,
-    topK: 5,
+    topK: 15,
   });
+
+  let chunks = candidates;
+
+  if (candidates.length > 5) {
+    yield { type: 'status' as const, stage: 'reranking' };
+
+    const rerankInput = candidates.map((c, i) => ({ index: i, content: c.content }));
+    const selectedIndices = await rerankChunks(searchQuery, rerankInput, 5);
+    chunks = selectedIndices.map((i) => candidates[i]).filter(Boolean);
+  }
 
   await prisma.message.create({
     data: { conversationId, role: 'USER', content: question },
