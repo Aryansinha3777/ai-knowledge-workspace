@@ -106,15 +106,12 @@ export async function* askQuestionStream(
     data: { conversationId, role: 'USER', content: question },
   });
 
-  const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
-  if (conversation && (!conversation.title || conversation.title === 'New Conversation')) {
-    generateTitle(question)
-      .then((title) => {
-        console.log('Generated title:', title);
-        return prisma.conversation.update({ where: { id: conversationId }, data: { title } });
-      })
-      .catch((err) => console.error('Title generation failed:', err.message));
-  }
+    const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+  const needsTitle = conversation && (!conversation.title || conversation.title === 'New Conversation');
+
+  const titlePromise = needsTitle
+    ? generateTitle(question).catch(() => 'New Conversation')
+    : null;
 
   if (chunks.length === 0) {
     const noContextAnswer =
@@ -152,9 +149,15 @@ export async function* askQuestionStream(
     yield { type: 'token' as const, token };
   }
 
-  await prisma.message.create({
+    await prisma.message.create({
     data: { conversationId, role: 'ASSISTANT', content: fullAnswer, sources: sources as any },
   });
+
+  if (titlePromise) {
+    const title = await titlePromise;
+    await prisma.conversation.update({ where: { id: conversationId }, data: { title } });
+    yield { type: 'title' as const, title };
+  }
 
   yield { type: 'done' as const };
 }

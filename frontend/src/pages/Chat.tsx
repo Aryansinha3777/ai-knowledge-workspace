@@ -4,6 +4,7 @@ import api from '../api/client';
 import Layout from '../components/Layout';
 import ReactMarkdown from 'react-markdown';
 import { Copy, Check } from 'lucide-react';
+import { useWorkspaceContext } from '../context/WorkspaceContext';
 
 interface Source {
   documentId: string;
@@ -29,6 +30,7 @@ export default function Chat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { refreshConversations } = useWorkspaceContext();
 
   async function loadConversation() {
     try {
@@ -122,6 +124,8 @@ export default function Chat() {
         else if (event.stage === 'reranking') setStatus('Ranking most relevant results...');
         else if (event.stage === 'found') setStatus(`Found ${event.count} relevant source${event.count === 1 ? '' : 's'}...`);
         else if (event.stage === 'generating') setStatus('Generating answer...');
+      } else if (event.type === 'title') {
+        if (workspaceId) refreshConversations(workspaceId);
       } else if (event.type === 'sources') {
         setMessages((prev) =>
           prev.map((m) => (m.id === assistantId ? { ...m, sources: event.sources } : m))
