@@ -11,9 +11,6 @@ export async function create(req: Request, res: Response) {
   try {
     const { name } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ success: false, message: 'Workspace name is required' });
-    }
 
     const workspace = await createWorkspace(req.userId as string, name);
 
@@ -46,9 +43,6 @@ export async function update(req: Request, res: Response) {
   try {
     const { name } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ success: false, message: 'Workspace name is required' });
-    }
 
     const workspace = await updateWorkspace(req.userId as string, req.params.id as string, name);
     return res.status(200).json({ success: true, data: workspace });

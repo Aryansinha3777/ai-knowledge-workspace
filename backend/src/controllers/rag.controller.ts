@@ -50,9 +50,6 @@ export async function ask(req: Request, res: Response) {
   try {
     const { question, workspaceId, documentId } = req.body;
 
-    if (!question) {
-      return res.status(400).json({ success: false, message: 'Question is required' });
-    }
 
     const result = await askQuestion(req.userId as string, req.params.id as string, question, {
       workspaceId,
@@ -68,10 +65,6 @@ export async function ask(req: Request, res: Response) {
 export async function askStream(req: Request, res: Response) {
   try {
     const { question, workspaceId, documentId } = req.body;
-
-    if (!question) {
-      return res.status(400).json({ success: false, message: 'Question is required' });
-    }
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
