@@ -1,4 +1,5 @@
 import { prisma } from '../config/prisma';
+import { AppError } from '../utils/AppError';
 
 export async function createWorkspace(userId: string, name: string) {
   const workspace = await prisma.workspace.create({
@@ -26,11 +27,11 @@ export async function getWorkspaceById(userId: string, workspaceId: string) {
   });
 
   if (!workspace) {
-    throw new Error('Workspace not found');
+    throw new AppError('Workspace not found', 404);
   }
 
   if (workspace.userId !== userId) {
-    throw new Error('Not authorized to access this workspace');
+    throw new AppError('Not authorized to access this workspace', 403);
   }
 
   return workspace;

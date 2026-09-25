@@ -6,6 +6,7 @@ import {
   updateWorkspace,
   deleteWorkspace,
 } from '../services/workspace.service';
+import { asyncHandler } from '../utils/asyncHandler';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -29,35 +30,18 @@ export async function list(req: Request, res: Response) {
   }
 }
 
-export async function getOne(req: Request, res: Response) {
-  try {
-    const workspace = await getWorkspaceById(req.userId as string, req.params.id as string);
-    return res.status(200).json({ success: true, data: workspace });
-  } catch (error: any) {
-    const status = error.message === 'Workspace not found' ? 404 : 403;
-    return res.status(status).json({ success: false, message: error.message });
-  }
-}
+export const getOne = asyncHandler(async (req: Request, res: Response) => {
+  const workspace = await getWorkspaceById(req.userId as string, req.params.id as string);
+  return res.status(200).json({ success: true, data: workspace });
+});
 
-export async function update(req: Request, res: Response) {
-  try {
-    const { name } = req.body;
+export const update = asyncHandler(async (req: Request, res: Response) => {
+  const { name } = req.body;
+  const workspace = await updateWorkspace(req.userId as string, req.params.id as string, name);
+  return res.status(200).json({ success: true, data: workspace });
+});
 
-
-    const workspace = await updateWorkspace(req.userId as string, req.params.id as string, name);
-    return res.status(200).json({ success: true, data: workspace });
-  } catch (error: any) {
-    const status = error.message === 'Workspace not found' ? 404 : 403;
-    return res.status(status).json({ success: false, message: error.message });
-  }
-}
-
-export async function remove(req: Request, res: Response) {
-  try {
-    await deleteWorkspace(req.userId as string, req.params.id as string);
-    return res.status(200).json({ success: true, message: 'Workspace deleted' });
-  } catch (error: any) {
-    const status = error.message === 'Workspace not found' ? 404 : 403;
-    return res.status(status).json({ success: false, message: error.message });
-  }
-}
+export const remove = asyncHandler(async (req: Request, res: Response) => {
+  await deleteWorkspace(req.userId as string, req.params.id as string);
+  return res.status(200).json({ success: true, message: 'Workspace deleted' });
+});
