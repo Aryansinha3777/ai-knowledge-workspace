@@ -1,5 +1,6 @@
 import fs from 'fs';
-import pdfParse from 'pdf-parse';
+import * as pdfParseModule from 'pdf-parse';
+const pdfParse = (pdfParseModule as any).default || pdfParseModule;
 
 export async function extractText(filePath: string, fileType: string): Promise<string> {
   if (fileType === 'pdf') {

@@ -7,8 +7,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const workspaceId = req.params.workspaceId;
-    const dir = path.join(__dirname, '../../uploads', workspaceId);
+  const workspaceId = req.params.workspaceId as string;
+  const dir = path.join(__dirname, '../../uploads', workspaceId);
 
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
