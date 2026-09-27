@@ -17,7 +17,7 @@ export default function Register() {
       await register(email, password, name);
       navigate('/workspaces');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.friendlyMessage || err.response?.data?.message || 'Registration failed');
     }
   }
 

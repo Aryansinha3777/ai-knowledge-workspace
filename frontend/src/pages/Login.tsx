@@ -16,7 +16,7 @@ export default function Login() {
       await login(email, password);
       navigate('/workspaces');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.friendlyMessage || err.response?.data?.message || 'Login failed');
     }
   }
 
