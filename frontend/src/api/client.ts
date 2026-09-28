@@ -32,4 +32,10 @@ api.interceptors.response.use(
   }
 );
 
+
+export function warmUpServer() {
+  const root = API_URL.replace(/\/api\/?$/, '');
+  fetch(`${root}/health`, { mode: 'no-cors' }).catch(() => {});
+}
+
 export default api;

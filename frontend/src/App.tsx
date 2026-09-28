@@ -7,8 +7,15 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Search from './pages/Search';
 import Chat from './pages/Chat';
 import ConversationList from './pages/ConversationList';
+import { useEffect } from 'react';
+import { warmUpServer } from './api/client';
 
 function App() {
+
+  useEffect(() => {
+  warmUpServer();
+}, []);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
