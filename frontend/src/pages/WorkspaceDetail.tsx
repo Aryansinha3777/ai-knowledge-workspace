@@ -1,4 +1,4 @@
-import { useEffect, useState, ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useParams, Link , useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';

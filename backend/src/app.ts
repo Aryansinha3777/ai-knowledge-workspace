@@ -12,7 +12,12 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',')
+  : true;
+
+app.use(cors({ origin: allowedOrigins }));
+
 app.use(express.json());
 
 app.get('/health', (req, res) => {

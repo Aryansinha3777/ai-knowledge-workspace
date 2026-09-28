@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../api/client';
+import api, { API_URL } from '../api/client';
 import Layout from '../components/Layout';
 import ReactMarkdown from 'react-markdown';
 import { Copy, Check } from 'lucide-react';
@@ -90,8 +90,8 @@ export default function Chat() {
   try {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:5000/api/conversations/${conversationId}/messages/stream`,
-      {
+        `${API_URL}/conversations/${conversationId}/messages/stream`,
+       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
