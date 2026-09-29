@@ -9,5 +9,5 @@ module.exports = {
     ...tsJestTransformCfg,
   },
   testMatch: ["**/__tests__/**/*.test.ts"],
-  setupFiles: ["dotenv/config"],
+  setupFiles: ["<rootDir>/jest.setup.js"],
 };
