@@ -20,6 +20,33 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const activeWorkspaceId = location.pathname.match(/\/workspaces\/([^/]+)/)?.[1];
 
+  const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId);
+  const activeConversation = activeWorkspaceId
+  ? (conversationsByWorkspace[activeWorkspaceId] || []).find((c) => c.id === activeConversationId)
+  : undefined;
+
+const pathSegment = location.pathname.split('/').pop();
+
+type Crumb = { label: string; to?: string };
+const crumbs: Crumb[] = [{ label: 'Workspaces', to: '/workspaces' }];
+
+if (activeWorkspace) {
+  crumbs.push({
+    label: activeWorkspace.name,
+    to: activeConversationId || pathSegment === 'search' || pathSegment === 'chat'
+      ? `/workspaces/${activeWorkspace.id}`
+      : undefined,
+  });
+
+  if (activeConversationId) {
+    crumbs.push({ label: activeConversation?.title || 'Conversation' });
+  } else if (pathSegment === 'search') {
+    crumbs.push({ label: 'Search' });
+  } else if (pathSegment === 'chat') {
+    crumbs.push({ label: 'Conversations' });
+  }
+}
+
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -167,7 +194,25 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          {crumbs.length > 1 && (
+            <div className="flex items-center gap-1 px-8 pt-4 text-sm text-[#71717A] flex-shrink-0">
+              {crumbs.map((crumb, i) => (
+                <span key={i} className="flex items-center gap-1">
+                  {i > 0 && <ChevronRight size={14} className="text-[#D4D4D8]" />}
+                  {crumb.to ? (
+                    <Link to={crumb.to} className="hover:text-[#27272A] transition-colors">
+                      {crumb.label}
+                    </Link>
+                  ) : (
+                    <span className="text-[#27272A] font-medium">{crumb.label}</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex-1 overflow-y-auto">{children}</div>
+        </main>
     </div>
   );
 }
