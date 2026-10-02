@@ -9,6 +9,7 @@ import Chat from './pages/Chat';
 import ConversationList from './pages/ConversationList';
 import { useEffect } from 'react';
 import { warmUpServer } from './api/client';
+import Landing from './pages/Landing';
 
 function App() {
 
@@ -60,7 +61,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/workspaces" replace />} />
+      <Route path="/" element={<Landing />} />
     </Routes>
   );
 }
