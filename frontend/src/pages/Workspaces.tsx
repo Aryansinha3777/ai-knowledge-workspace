@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import { FolderOpen, FileText, MessageSquare } from 'lucide-react';
 import { useWorkspaceContext } from '../context/WorkspaceContext';
 
 interface Workspace {
@@ -10,12 +11,32 @@ interface Workspace {
   createdAt: string;
 }
 
+interface DashboardData {
+  counts: { workspaces: number; documents: number; conversations: number };
+  recentDocuments: {
+    id: string;
+    filename: string;
+    status: string;
+    createdAt: string;
+    workspaceId: string;
+    workspace: { name: string };
+  }[];
+  recentConversations: {
+    id: string;
+    title: string | null;
+    updatedAt: string;
+    workspaceId: string;
+    workspace: { name: string };
+  }[];
+}
+
 export default function Workspaces() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [newName, setNewName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { refreshWorkspaces } = useWorkspaceContext();
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   async function fetchWorkspaces() {
     try {
@@ -28,9 +49,30 @@ export default function Workspaces() {
     }
   }
 
+  async function fetchDashboard() {
+  try {
+    const res = await api.get('/dashboard');
+    setDashboard(res.data.data);
+  } catch {
+    // dashboard is supplementary — fail silently, don't block the page
+  }
+}
+
   useEffect(() => {
     fetchWorkspaces();
+    fetchDashboard();
   }, []);
+
+  function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -63,6 +105,76 @@ export default function Workspaces() {
         <p className="text-sm text-[#71717A] mb-8">
           Organize your documents into focused knowledge spaces.
         </p>
+
+{dashboard && (
+  <>
+    <div className="grid grid-cols-3 gap-3 mb-8">
+  <div className="border border-[#E4E4E7] rounded-lg p-4">
+    <div className="flex items-center gap-2 mb-2">
+      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
+        <FolderOpen size={14} className="text-[#4F46E5]" />
+      </div>
+      <span className="text-xs font-medium text-[#71717A]">Workspaces</span>
+    </div>
+    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.workspaces}</p>
+  </div>
+  <div className="border border-[#E4E4E7] rounded-lg p-4">
+    <div className="flex items-center gap-2 mb-2">
+      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
+        <FileText size={14} className="text-[#4F46E5]" />
+      </div>
+      <span className="text-xs font-medium text-[#71717A]">Documents</span>
+    </div>
+    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.documents}</p>
+  </div>
+  <div className="border border-[#E4E4E7] rounded-lg p-4">
+    <div className="flex items-center gap-2 mb-2">
+      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
+        <MessageSquare size={14} className="text-[#4F46E5]" />
+      </div>
+      <span className="text-xs font-medium text-[#71717A]">Conversations</span>
+    </div>
+    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.conversations}</p>
+  </div>
+</div>
+
+    {(dashboard.recentDocuments.length > 0 || dashboard.recentConversations.length > 0) && (
+      <div className="mb-8">
+        <p className="text-xs font-medium text-[#71717A] mb-2">Recent activity</p>
+        <div className="border border-[#E4E4E7] rounded-lg divide-y divide-[#E4E4E7]">
+          {dashboard.recentDocuments.slice(0, 3).map((doc) => (
+            <Link
+              key={doc.id}
+              to={`/workspaces/${doc.workspaceId}`}
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-[#F7F7F8] transition-colors"
+            >
+              <span className="text-sm text-[#27272A] truncate">
+                {doc.filename} <span className="text-[#71717A]">in {doc.workspace.name}</span>
+              </span>
+              <span className="text-xs text-[#71717A] flex-shrink-0 ml-3">
+                {timeAgo(doc.createdAt)}
+              </span>
+            </Link>
+          ))}
+          {dashboard.recentConversations.slice(0, 2).map((conv) => (
+            <Link
+              key={conv.id}
+              to={`/workspaces/${conv.workspaceId}/chat/${conv.id}`}
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-[#F7F7F8] transition-colors"
+            >
+              <span className="text-sm text-[#27272A] truncate">
+                {conv.title || 'Untitled'} <span className="text-[#71717A]">in {conv.workspace.name}</span>
+              </span>
+              <span className="text-xs text-[#71717A] flex-shrink-0 ml-3">
+                {timeAgo(conv.updatedAt)}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+)}
 
         <form onSubmit={handleCreate} className="flex gap-2 mb-8">
           <input
