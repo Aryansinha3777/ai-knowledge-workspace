@@ -26,7 +26,11 @@ const features = [
 ];
 
 export default function Landing() {
-  const { user } = useAuth();
+  const { user, initializing } = useAuth();
+
+  if (initializing) {
+    return null;
+  }
 
   if (user) {
     return <Navigate to="/workspaces" replace />;
