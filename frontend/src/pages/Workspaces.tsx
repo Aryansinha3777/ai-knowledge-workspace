@@ -4,6 +4,7 @@ import api from '../api/client';
 import Layout from '../components/Layout';
 import { FolderOpen, FileText, MessageSquare } from 'lucide-react';
 import { useWorkspaceContext } from '../context/WorkspaceContext';
+import EmptyState from '../components/EmptyState';
 
 interface Workspace {
   id: string;
@@ -196,11 +197,13 @@ export default function Workspaces() {
 
         {loading ? (
           <p className="text-sm text-[#71717A]">Loading...</p>
-        ) : workspaces.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-[#E4E4E7] rounded-lg">
-            <p className="text-sm text-[#71717A]">No workspaces yet — create one above to get started.</p>
-          </div>
-        ) : (
+          ) : workspaces.length === 0 ? (
+            <EmptyState
+              icon={FolderPlus}
+              title="No workspaces yet"
+              description="Create your first workspace above to start organizing your documents."
+            />
+          ) : (
           <ul className="space-y-1">
             {workspaces.map((ws) => (
               <li

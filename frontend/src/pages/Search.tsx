@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import EmptyState from '../components/EmptyState';
+import { SearchX } from 'lucide-react';
 
 interface SearchResult {
   id: string;
@@ -66,9 +68,11 @@ export default function Search() {
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
         {searched && !loading && results.length === 0 && !error && (
-          <div className="text-center py-12 border border-dashed border-[#E4E4E7] rounded-lg">
-            <p className="text-sm text-[#71717A]">No results found.</p>
-          </div>
+          <EmptyState
+            icon={SearchX}
+            title="No results found"
+            description="Try a different phrase, or make sure your documents have finished processing."
+          />
         )}
 
         <ul className="space-y-3">

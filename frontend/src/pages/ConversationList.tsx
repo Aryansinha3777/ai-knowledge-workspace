@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import EmptyState from '../components/EmptyState';
+import { MessageSquarePlus } from 'lucide-react';
 
 interface Conversation {
   id: string;
@@ -70,11 +72,13 @@ export default function ConversationList() {
 
         {loading ? (
           <p className="text-sm text-[#71717A]">Loading...</p>
-        ) : conversations.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-[#E4E4E7] rounded-lg">
-            <p className="text-sm text-[#71717A]">No conversations yet — start one above.</p>
-          </div>
-        ) : (
+            ) : conversations.length === 0 ? (
+              <EmptyState
+                icon={MessageSquarePlus}
+                title="No conversations yet"
+                description="Start a new conversation above to ask questions about your documents."
+              />
+            ) : (
           <ul className="space-y-1">
             {conversations.map((conv) => (
               <li key={conv.id}>

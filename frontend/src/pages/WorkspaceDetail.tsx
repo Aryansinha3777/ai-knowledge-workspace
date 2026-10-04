@@ -2,6 +2,8 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import { useParams, Link , useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
+import EmptyState from '../components/EmptyState';
+import { FileUp } from 'lucide-react';
 
 
 interface Document {
@@ -147,11 +149,13 @@ export default function WorkspaceDetail() {
 
         {loading ? (
           <p className="text-sm text-[#71717A]">Loading...</p>
-        ) : documents.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-[#E4E4E7] rounded-lg">
-            <p className="text-sm text-[#71717A]">No documents yet — upload one above.</p>
-          </div>
-        ) : (
+          ) : documents.length === 0 ? (
+            <EmptyState
+              icon={FileUp}
+              title="No documents yet"
+              description="Upload a PDF, TXT, or Markdown file above to start building your knowledge base."
+            />
+          ) : (
           <ul className="space-y-1">
             {documents.map((doc) => (
               <li key={doc.id} className="px-4 py-3 rounded-lg hover:bg-[#F7F7F8] transition-colors">
