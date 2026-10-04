@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
-import { FolderOpen, FileText, MessageSquare } from 'lucide-react';
+import { FolderOpen, FileText, MessageSquare, FolderPlus } from 'lucide-react';
 import { useWorkspaceContext } from '../context/WorkspaceContext';
 import EmptyState from '../components/EmptyState';
 
