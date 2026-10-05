@@ -187,7 +187,7 @@ export default function Workspaces() {
           />
           <button
             type="submit"
-            className="bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+            className="bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors btn-press"
           >
             Create
           </button>

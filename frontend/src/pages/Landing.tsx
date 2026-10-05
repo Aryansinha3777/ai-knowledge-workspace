@@ -65,13 +65,13 @@ export default function Landing() {
         <div className="flex items-center justify-center gap-3">
           <Link
             to="/register"
-            className="bg-[#4F46E5] text-white font-medium px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors"
+            className="bg-[#4F46E5] text-white font-medium px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors btn-press"
           >
             Get started — it's free
           </Link>
           <Link
             to="/login"
-            className="text-[#27272A] font-medium px-6 py-3 rounded-lg border border-[#E4E4E7] hover:bg-[#F7F7F8] transition-colors"
+            className="text-[#27272A] font-medium px-6 py-3 rounded-lg border border-[#E4E4E7] hover:bg-[#F7F7F8] transition-colors btn-press"
           >
             Log in
           </Link>

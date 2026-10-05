@@ -133,7 +133,7 @@ export default function WorkspaceDetail() {
         <p className="text-sm text-[#71717A] mb-8">Upload PDF, TXT, or Markdown files.</p>
 
         <label className="inline-block mb-8">
-          <span className="inline-block bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer hover:bg-[#4338CA] transition-colors">
+          <span className="inline-block bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer hover:bg-[#4338CA] transition-colors btn-press">
             {uploading ? 'Uploading...' : 'Upload document'}
           </span>
           <input

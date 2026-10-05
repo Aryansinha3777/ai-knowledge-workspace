@@ -238,7 +238,7 @@ export default function Chat() {
               <button
                 type="submit"
                 disabled={asking}
-                className="bg-[#4F46E5] text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-[#4338CA] disabled:opacity-50 transition-colors"
+                className="bg-[#4F46E5] text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-[#4338CA] disabled:opacity-50 transition-colors btn-press"
               >
                 Ask
               </button>

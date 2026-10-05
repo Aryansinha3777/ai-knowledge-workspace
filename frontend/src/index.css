@@ -15,3 +15,11 @@ body {
     transform: translateY(0);
   }
 }
+
+.btn-press {
+  transition: transform 0.1s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.97);
+}
