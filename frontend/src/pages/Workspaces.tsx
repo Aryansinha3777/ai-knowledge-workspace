@@ -36,8 +36,8 @@ export default function Workspaces() {
   const [newName, setNewName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { refreshWorkspaces } = useWorkspaceContext();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const { refreshWorkspaces } = useWorkspaceContext();
 
   async function fetchWorkspaces() {
     try {
@@ -51,13 +51,13 @@ export default function Workspaces() {
   }
 
   async function fetchDashboard() {
-  try {
-    const res = await api.get('/dashboard');
-    setDashboard(res.data.data);
-  } catch {
-    // dashboard is supplementary — fail silently, don't block the page
+    try {
+      const res = await api.get('/dashboard');
+      setDashboard(res.data.data);
+    } catch {
+      // supplementary — fail silently
+    }
   }
-}
 
   useEffect(() => {
     fetchWorkspaces();
@@ -65,15 +65,15 @@ export default function Workspaces() {
   }, []);
 
   function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -102,80 +102,80 @@ export default function Workspaces() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto px-8 py-12">
-        <h1 className="text-2xl font-semibold text-[#27272A] mb-1">Your workspaces</h1>
-        <p className="text-sm text-[#71717A] mb-8">
+        <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-1">Your workspaces</h1>
+        <p className="text-sm text-[var(--text-secondary)] mb-8">
           Organize your documents into focused knowledge spaces.
         </p>
 
-{dashboard && (
-  <>
-    <div className="grid grid-cols-3 gap-3 mb-8">
-  <div className="border border-[#E4E4E7] rounded-lg p-4">
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
-        <FolderOpen size={14} className="text-[#4F46E5]" />
-      </div>
-      <span className="text-xs font-medium text-[#71717A]">Workspaces</span>
-    </div>
-    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.workspaces}</p>
-  </div>
-  <div className="border border-[#E4E4E7] rounded-lg p-4">
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
-        <FileText size={14} className="text-[#4F46E5]" />
-      </div>
-      <span className="text-xs font-medium text-[#71717A]">Documents</span>
-    </div>
-    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.documents}</p>
-  </div>
-  <div className="border border-[#E4E4E7] rounded-lg p-4">
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-7 h-7 rounded-md bg-[#4F46E5]/10 flex items-center justify-center">
-        <MessageSquare size={14} className="text-[#4F46E5]" />
-      </div>
-      <span className="text-xs font-medium text-[#71717A]">Conversations</span>
-    </div>
-    <p className="text-2xl font-semibold text-[#4F46E5]">{dashboard.counts.conversations}</p>
-  </div>
-</div>
+        {dashboard && (
+          <>
+            <div className="grid grid-cols-3 gap-3 mb-8">
+              <div className="border border-[var(--border-color)] rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-md bg-[var(--accent-tint)] flex items-center justify-center">
+                    <FolderOpen size={14} className="text-[var(--accent)]" />
+                  </div>
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">Workspaces</span>
+                </div>
+                <p className="text-2xl font-semibold text-[var(--accent)]">{dashboard.counts.workspaces}</p>
+              </div>
+              <div className="border border-[var(--border-color)] rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-md bg-[var(--accent-tint)] flex items-center justify-center">
+                    <FileText size={14} className="text-[var(--accent)]" />
+                  </div>
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">Documents</span>
+                </div>
+                <p className="text-2xl font-semibold text-[var(--accent)]">{dashboard.counts.documents}</p>
+              </div>
+              <div className="border border-[var(--border-color)] rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-md bg-[var(--accent-tint)] flex items-center justify-center">
+                    <MessageSquare size={14} className="text-[var(--accent)]" />
+                  </div>
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">Conversations</span>
+                </div>
+                <p className="text-2xl font-semibold text-[var(--accent)]">{dashboard.counts.conversations}</p>
+              </div>
+            </div>
 
-    {(dashboard.recentDocuments.length > 0 || dashboard.recentConversations.length > 0) && (
-      <div className="mb-8">
-        <p className="text-xs font-medium text-[#71717A] mb-2">Recent activity</p>
-        <div className="border border-[#E4E4E7] rounded-lg divide-y divide-[#E4E4E7]">
-          {dashboard.recentDocuments.slice(0, 3).map((doc) => (
-            <Link
-              key={doc.id}
-              to={`/workspaces/${doc.workspaceId}`}
-              className="flex items-center justify-between px-4 py-2.5 hover:bg-[#F7F7F8] transition-colors"
-            >
-              <span className="text-sm text-[#27272A] truncate">
-                {doc.filename} <span className="text-[#71717A]">in {doc.workspace.name}</span>
-              </span>
-              <span className="text-xs text-[#71717A] flex-shrink-0 ml-3">
-                {timeAgo(doc.createdAt)}
-              </span>
-            </Link>
-          ))}
-          {dashboard.recentConversations.slice(0, 2).map((conv) => (
-            <Link
-              key={conv.id}
-              to={`/workspaces/${conv.workspaceId}/chat/${conv.id}`}
-              className="flex items-center justify-between px-4 py-2.5 hover:bg-[#F7F7F8] transition-colors"
-            >
-              <span className="text-sm text-[#27272A] truncate">
-                {conv.title || 'Untitled'} <span className="text-[#71717A]">in {conv.workspace.name}</span>
-              </span>
-              <span className="text-xs text-[#71717A] flex-shrink-0 ml-3">
-                {timeAgo(conv.updatedAt)}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    )}
-  </>
-)}
+            {(dashboard.recentDocuments.length > 0 || dashboard.recentConversations.length > 0) && (
+              <div className="mb-8">
+                <p className="text-xs font-medium text-[var(--text-secondary)] mb-2">Recent activity</p>
+                <div className="border border-[var(--border-color)] rounded-lg divide-y divide-[var(--border-color)]">
+                  {dashboard.recentDocuments.slice(0, 3).map((doc) => (
+                    <Link
+                      key={doc.id}
+                      to={`/workspaces/${doc.workspaceId}`}
+                      className="flex items-center justify-between px-4 py-2.5 hover:bg-[var(--bg-secondary)] transition-colors"
+                    >
+                      <span className="text-sm text-[var(--text-primary)] truncate">
+                        {doc.filename} <span className="text-[var(--text-secondary)]">in {doc.workspace.name}</span>
+                      </span>
+                      <span className="text-xs text-[var(--text-secondary)] flex-shrink-0 ml-3">
+                        {timeAgo(doc.createdAt)}
+                      </span>
+                    </Link>
+                  ))}
+                  {dashboard.recentConversations.slice(0, 2).map((conv) => (
+                    <Link
+                      key={conv.id}
+                      to={`/workspaces/${conv.workspaceId}/chat/${conv.id}`}
+                      className="flex items-center justify-between px-4 py-2.5 hover:bg-[var(--bg-secondary)] transition-colors"
+                    >
+                      <span className="text-sm text-[var(--text-primary)] truncate">
+                        {conv.title || 'Untitled'} <span className="text-[var(--text-secondary)]">in {conv.workspace.name}</span>
+                      </span>
+                      <span className="text-xs text-[var(--text-secondary)] flex-shrink-0 ml-3">
+                        {timeAgo(conv.updatedAt)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         <form onSubmit={handleCreate} className="flex gap-2 mb-8">
           <input
@@ -183,39 +183,39 @@ export default function Workspaces() {
             placeholder="New workspace name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="flex-1 border border-[#E4E4E7] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 focus:border-[#4F46E5]"
+            className="flex-1 border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
           />
           <button
             type="submit"
-            className="bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors btn-press"
+            className="bg-[var(--accent)] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[var(--accent-hover)] transition-colors btn-press"
           >
             Create
           </button>
         </form>
 
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         {loading ? (
-          <p className="text-sm text-[#71717A]">Loading...</p>
-          ) : workspaces.length === 0 ? (
-            <EmptyState
-              icon={FolderPlus}
-              title="No workspaces yet"
-              description="Create your first workspace above to start organizing your documents."
-            />
-          ) : (
+          <p className="text-sm text-[var(--text-secondary)]">Loading...</p>
+        ) : workspaces.length === 0 ? (
+          <EmptyState
+            icon={FolderPlus}
+            title="No workspaces yet"
+            description="Create your first workspace above to start organizing your documents."
+          />
+        ) : (
           <ul className="space-y-1">
             {workspaces.map((ws) => (
               <li
                 key={ws.id}
-                className="group flex justify-between items-center px-4 py-3 rounded-lg hover:bg-[#F7F7F8] transition-colors"
+                className="group flex justify-between items-center px-4 py-3 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <Link to={`/workspaces/${ws.id}`} className="text-sm text-[#27272A] font-medium">
+                <Link to={`/workspaces/${ws.id}`} className="text-sm text-[var(--text-primary)] font-medium">
                   {ws.name}
                 </Link>
                 <button
                   onClick={() => handleDelete(ws.id)}
-                  className="text-xs text-[#71717A] hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-xs text-[var(--text-secondary)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Delete
                 </button>

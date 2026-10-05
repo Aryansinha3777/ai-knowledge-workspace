@@ -1,10 +1,9 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
-import { useParams, Link , useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import Layout from '../components/Layout';
 import EmptyState from '../components/EmptyState';
 import { FileUp } from 'lucide-react';
-
 
 interface Document {
   id: string;
@@ -16,21 +15,21 @@ interface Document {
 }
 
 const STATUS_STYLES: Record<Document['status'], string> = {
-  PENDING: 'bg-amber-50 text-amber-700',
-  PROCESSING: 'bg-blue-50 text-blue-700',
-  COMPLETED: 'bg-emerald-50 text-emerald-700',
-  FAILED: 'bg-red-50 text-red-700',
+  PENDING: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  PROCESSING: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  COMPLETED: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  FAILED: 'bg-red-500/10 text-red-600 dark:text-red-400',
 };
 
 export default function WorkspaceDetail() {
   const { id: workspaceId } = useParams();
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [summaries, setSummaries] = useState<Record<string, string>>({});
   const [summarizing, setSummarizing] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   async function fetchDocuments() {
     try {
@@ -42,17 +41,6 @@ export default function WorkspaceDetail() {
       setLoading(false);
     }
   }
-
-  async function handleAskAI() {
-  try {
-    const res = await api.post(`/workspaces/${workspaceId}/conversations`, {
-      title: 'New Conversation',
-    });
-    navigate(`/workspaces/${workspaceId}/chat/${res.data.data.id}`);
-  } catch {
-    setError('Failed to start conversation');
-  }
-}
 
   useEffect(() => {
     fetchDocuments();
@@ -111,6 +99,17 @@ export default function WorkspaceDetail() {
     }
   }
 
+  async function handleAskAI() {
+    try {
+      const res = await api.post(`/workspaces/${workspaceId}/conversations`, {
+        title: 'New Conversation',
+      });
+      navigate(`/workspaces/${workspaceId}/chat/${res.data.data.id}`);
+    } catch {
+      setError('Failed to start conversation');
+    }
+  }
+
   function formatFileSize(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
     return `${(bytes / 1024).toFixed(1)} KB`;
@@ -120,20 +119,20 @@ export default function WorkspaceDetail() {
     <Layout>
       <div className="max-w-2xl mx-auto px-8 py-12">
         <div className="flex items-center justify-between mb-1">
-          <h1 className="text-2xl font-semibold text-[#27272A]">Documents</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Documents</h1>
           <div className="flex gap-4">
-            <Link to={`/workspaces/${workspaceId}/search`} className="text-sm text-[#4F46E5] font-medium">
+            <Link to={`/workspaces/${workspaceId}/search`} className="text-sm text-[var(--accent)] font-medium">
               Search
             </Link>
-            <button onClick={handleAskAI} className="text-sm text-[#4F46E5] font-medium">
+            <button onClick={handleAskAI} className="text-sm text-[var(--accent)] font-medium">
               Ask AI
             </button>
           </div>
         </div>
-        <p className="text-sm text-[#71717A] mb-8">Upload PDF, TXT, or Markdown files.</p>
+        <p className="text-sm text-[var(--text-secondary)] mb-8">Upload PDF, TXT, or Markdown files.</p>
 
         <label className="inline-block mb-8">
-          <span className="inline-block bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer hover:bg-[#4338CA] transition-colors btn-press">
+          <span className="inline-block bg-[var(--accent)] text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer hover:bg-[var(--accent-hover)] transition-colors btn-press">
             {uploading ? 'Uploading...' : 'Upload document'}
           </span>
           <input
@@ -145,24 +144,24 @@ export default function WorkspaceDetail() {
           />
         </label>
 
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         {loading ? (
-          <p className="text-sm text-[#71717A]">Loading...</p>
-          ) : documents.length === 0 ? (
-            <EmptyState
-              icon={FileUp}
-              title="No documents yet"
-              description="Upload a PDF, TXT, or Markdown file above to start building your knowledge base."
-            />
-          ) : (
+          <p className="text-sm text-[var(--text-secondary)]">Loading...</p>
+        ) : documents.length === 0 ? (
+          <EmptyState
+            icon={FileUp}
+            title="No documents yet"
+            description="Upload a PDF, TXT, or Markdown file above to start building your knowledge base."
+          />
+        ) : (
           <ul className="space-y-1">
             {documents.map((doc) => (
-              <li key={doc.id} className="px-4 py-3 rounded-lg hover:bg-[#F7F7F8] transition-colors">
+              <li key={doc.id} className="px-4 py-3 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm font-medium text-[#27272A]">{doc.filename}</p>
-                    <p className="text-xs text-[#71717A] mt-0.5">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{doc.filename}</p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                       {doc.fileType.toUpperCase()} · {formatFileSize(doc.fileSize)}
                     </p>
                   </div>
@@ -174,14 +173,14 @@ export default function WorkspaceDetail() {
                       <button
                         onClick={() => handleSummarize(doc.id)}
                         disabled={summarizing === doc.id}
-                        className="text-xs text-[#71717A] hover:text-[#27272A] disabled:opacity-50"
+                        className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50"
                       >
                         {summarizing === doc.id ? 'Summarizing...' : 'Summarize'}
                       </button>
                     )}
                     <button
                       onClick={() => handleDelete(doc.id)}
-                      className="text-xs text-[#71717A] hover:text-red-600"
+                      className="text-xs text-[var(--text-secondary)] hover:text-red-500"
                     >
                       Delete
                     </button>
@@ -189,7 +188,7 @@ export default function WorkspaceDetail() {
                 </div>
 
                 {summaries[doc.id] && (
-                  <div className="mt-3 pt-3 border-t border-[#E4E4E7] text-sm text-[#52525B] whitespace-pre-line">
+                  <div className="mt-3 pt-3 border-t border-[var(--border-color)] text-sm text-[var(--text-secondary)] whitespace-pre-line">
                     {summaries[doc.id]}
                   </div>
                 )}

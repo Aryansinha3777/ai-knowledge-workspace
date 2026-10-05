@@ -43,8 +43,8 @@ export default function Search() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto px-8 py-12">
-        <h1 className="text-2xl font-semibold text-[#27272A] mb-1">Search</h1>
-        <p className="text-sm text-[#71717A] mb-8">
+        <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-1">Search</h1>
+        <p className="text-sm text-[var(--text-secondary)] mb-8">
           Find relevant content across your documents by meaning, not just keywords.
         </p>
 
@@ -54,18 +54,18 @@ export default function Search() {
             placeholder="Search this workspace..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 border border-[#E4E4E7] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 focus:border-[#4F46E5]"
+            className="flex-1 border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#4F46E5] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#4338CA] disabled:opacity-50 transition-colors"
+            className="bg-[var(--accent)] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors btn-press"
           >
             {loading ? 'Searching...' : 'Search'}
           </button>
         </form>
 
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         {searched && !loading && results.length === 0 && !error && (
           <EmptyState
@@ -77,14 +77,14 @@ export default function Search() {
 
         <ul className="space-y-3">
           {results.map((r) => (
-            <li key={r.id} className="p-4 rounded-lg border border-[#E4E4E7]">
+            <li key={r.id} className="p-4 rounded-lg border border-[var(--border-color)]">
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm font-medium text-[#27272A]">{r.filename}</span>
-                <span className="text-xs text-[#71717A]">
+                <span className="text-sm font-medium text-[var(--text-primary)]">{r.filename}</span>
+                <span className="text-xs text-[var(--text-secondary)]">
                   {(r.similarity * 100).toFixed(0)}% match
                 </span>
               </div>
-              <p className="text-sm text-[#52525B] leading-relaxed">{r.content}</p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{r.content}</p>
             </li>
           ))}
         </ul>
