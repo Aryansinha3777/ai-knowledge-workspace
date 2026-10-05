@@ -165,7 +165,7 @@ export default function Chat() {
             ) : (
               <div className="space-y-6">
                 {messages.map((msg) => (
-                  <div key={msg.id}>
+                <div key={msg.id} className="animate-[fadeIn_0.3s_ease-out]">
                     {msg.role === 'USER' ? (
                       <div className="flex justify-end">
                         <div className="bg-[#4F46E5] text-white text-sm rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]">
