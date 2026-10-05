@@ -84,17 +84,18 @@ export default function Landing() {
         <div className="border border-[var(--border-color)] rounded-2xl bg-[var(--bg-secondary)] p-6 sm:p-10">
           <div className="bg-[var(--bg-primary)] rounded-xl shadow-sm border border-[var(--border-color)] p-6 max-w-lg mx-auto">
             <div className="flex justify-end mb-4">
-              <div className="bg-[var(--accent)] text-white text-sm rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[85%]">
-                What is special about an elephant's trunk?
-              </div>
+            <div className="bg-[var(--accent)] text-white text-sm rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[85%]">
+              How does indexing improve database query performance?
             </div>
-            <p className="text-sm text-[var(--text-primary)] leading-relaxed mb-2">
-              An elephant's trunk is its most remarkable feature — a highly versatile tool
-              used for breathing, smelling, communicating, and grasping food or water.
-            </p>
-            <span className="inline-block text-xs text-[var(--text-secondary)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-full px-2.5 py-1">
-              elephant.md · 72%
-            </span>
+          </div>
+          <p className="text-sm text-[var(--text-primary)] leading-relaxed mb-2">
+            An index lets the database locate rows without scanning the entire table —
+            it works like a sorted lookup structure, trading a bit of extra storage and
+            slower writes for significantly faster reads on the indexed columns.
+          </p>
+          <span className="inline-block text-xs text-[var(--text-secondary)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-full px-2.5 py-1">
+            system-design-notes.md · 81%
+          </span>
           </div>
         </div>
       </section>
