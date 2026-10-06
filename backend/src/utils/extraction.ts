@@ -1,12 +1,12 @@
 import fs from 'fs';
-import * as pdfParseModule from 'pdf-parse';
-const pdfParse = (pdfParseModule as any).default || pdfParseModule;
+import { PDFParse } from 'pdf-parse';
 
 export async function extractText(filePath: string, fileType: string): Promise<string> {
   if (fileType === 'pdf') {
     const buffer = fs.readFileSync(filePath);
-    const data = await pdfParse(buffer);
-    return data.text;
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
+    return result.text;
   }
 
   if (fileType === 'txt' || fileType === 'md') {

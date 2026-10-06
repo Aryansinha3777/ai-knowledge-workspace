@@ -4,8 +4,8 @@ interface ChunkOptions {
 }
 
 const DEFAULT_OPTIONS: ChunkOptions = {
-  chunkSize: 1000,
-  overlap: 200,
+  chunkSize: 1500,
+  overlap: 250,
 };
 
 export function cleanText(text: string): string {
