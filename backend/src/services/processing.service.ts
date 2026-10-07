@@ -2,6 +2,7 @@ import { prisma } from '../config/prisma';
 import { extractText } from '../utils/extraction';
 import { cleanText, chunkText } from '../utils/chunking';
 import { generateEmbeddings } from './embedding.service';
+import { Prisma } from '@prisma/client';
 
 export async function processDocument(documentId: string) {
   const document = await prisma.document.findUnique({ where: { id: documentId } });
@@ -23,25 +24,23 @@ export async function processDocument(documentId: string) {
     if (chunks.length === 0) {
       throw new Error('No extractable text found in document');
     }
-      const BATCH_SIZE = 50;
+     const BATCH_SIZE = 50;
 
-      for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-        const batch = chunks.slice(i, i + BATCH_SIZE);
-        const embeddings = await generateEmbeddings(batch);
+for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+  const batch = chunks.slice(i, i + BATCH_SIZE);
+  const embeddings = await generateEmbeddings(batch);
 
-        await Promise.all(
-          batch.map((content, idx) => {
-            const chunkIndex = i + idx;
-            const embedding = embeddings[idx];
+  const rows = batch.map((content, idx) => {
+    const chunkIndex = i + idx;
+    const embedding = embeddings[idx];
+    return Prisma.sql`(gen_random_uuid(), ${documentId}, ${chunkIndex}, ${content}, ${embedding}::vector, now())`;
+  });
 
-            return prisma.$executeRaw`
-              INSERT INTO "DocumentChunk" (id, "documentId", "chunkIndex", content, embedding, "createdAt")
-              VALUES (gen_random_uuid(), ${documentId}, ${chunkIndex}, ${content}, ${embedding}::vector, now())
-            `;
-          })
-        );
-      }
-
+  await prisma.$executeRaw`
+    INSERT INTO "DocumentChunk" (id, "documentId", "chunkIndex", content, embedding, "createdAt")
+    VALUES ${Prisma.join(rows)}
+  `;
+}
     await prisma.document.update({
       where: { id: documentId },
       data: { status: 'COMPLETED' },
