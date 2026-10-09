@@ -107,25 +107,6 @@ Every child record carries a foreign key back to its owner, and every query — 
 - A PostgreSQL database with the `pgvector` extension available (this project uses [Neon](https://neon.tech), free tier)
 - API keys: [Google AI Studio](https://aistudio.google.com) (embeddings) and [Groq](https://console.groq.com) (LLM)
 
-### Backend
-
-```bash
-cd backend
-npm install
-cp .env.example .env   # fill in your own values
-npx prisma migrate deploy
-npm run dev
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-cp .env.example .env   # set VITE_API_URL to your backend URL
-npm run dev
-```
-
 ### Environment variables (backend)
 
 | Variable | Description |
